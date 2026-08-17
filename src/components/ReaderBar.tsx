@@ -169,7 +169,7 @@ export function ReaderBar({ mode, onMode }: Props) {
                   : 'Готово к прослушиванию'}
             </p>
 
-            <p className="text-[length:var(--fs-ui)] opacity-65">
+            <p data-source={reader.source} className="text-[length:var(--fs-ui)] opacity-65">
               <span className="sr-only">Источник звука: </span>
               {reader.source === 'track' ? 'Запись' : 'Синтез в браузере'}
             </p>
