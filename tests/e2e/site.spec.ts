@@ -7,12 +7,16 @@ async function switchMode(page: Page, label: string) {
   await page.waitForTimeout(300);
 }
 
+/** Пары размечены явными кортежами: при строгой проверке индексов
+    обычный массив даёт «строку или ничего» и ломает сборку. */
+const VERSIONS: Array<readonly [label: string, mode: string]> = [
+  ['Стандарт', 'standard'],
+  ['Аудиоверсия', 'audio'],
+  ['Для слабовидящих', 'accessible'],
+];
+
 test.describe('доступность', () => {
-  for (const [label, mode] of [
-    ['Стандарт', 'standard'],
-    ['Аудиоверсия', 'audio'],
-    ['Для слабовидящих', 'accessible'],
-  ]) {
+  for (const [label, mode] of VERSIONS) {
     test(`axe не находит нарушений в версии «${label}»`, async ({ page }) => {
       await page.goto('/');
       await switchMode(page, label);
