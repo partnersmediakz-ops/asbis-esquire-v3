@@ -162,4 +162,26 @@ test.describe('механика для двух типов читателей', 
     expect(mp3.length).toBeGreaterThan(0);
     expect(await page.locator('.is-reading').count()).toBeGreaterThan(0);
   });
+
+  test('подсветка бежит по словам, а не выделяет абзац целиком', async ({ page }) => {
+    await page.goto('/');
+    await switchMode(page, 'Аудиоверсия');
+    await page.waitForSelector('button:has-text("Слушать материал")', { timeout: 20_000 });
+    await page.getByRole('button', { name: 'Слушать материал' }).click();
+
+    // Первым читается описание обложки: у кадра слов нет, подсвечивать
+    // в нём нечего — переходим к тексту.
+    await page.waitForTimeout(600);
+    await page.getByRole('button', { name: 'Следующий фрагмент' }).click();
+
+    const seen: string[] = [];
+    for (let i = 0; i < 6; i++) {
+      await page.waitForTimeout(700);
+      seen.push((await page.locator('.is-current-word').first().textContent()) ?? '');
+    }
+
+    // Подсветка обязана перемещаться: если слово всё время одно, значит
+    // прогресс не идёт и «караоке» превратилось в статичное выделение.
+    expect(new Set(seen.filter(Boolean)).size).toBeGreaterThan(2);
+  });
 });

@@ -98,7 +98,13 @@ export function ReaderBar({ mode, onMode }: Props) {
           </button>
         </div>
 
-        {mode === 'audio' && reader.source !== 'none' && (
+        {mode === 'audio' && reader.source === 'pending' && (
+          <p aria-live="polite" className="text-[length:var(--fs-ui)] opacity-75">
+            Готовим озвучку…
+          </p>
+        )}
+
+        {mode === 'audio' && (reader.source === 'track' || reader.source === 'speech') && (
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -163,7 +169,7 @@ export function ReaderBar({ mode, onMode }: Props) {
                   : 'Готово к прослушиванию'}
             </p>
 
-            <p className="text-[length:var(--fs-ui)] opacity-55">
+            <p className="text-[length:var(--fs-ui)] opacity-65">
               <span className="sr-only">Источник звука: </span>
               {reader.source === 'track' ? 'Запись' : 'Синтез в браузере'}
             </p>

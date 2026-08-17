@@ -12,6 +12,15 @@ import { ReadAlong } from '@/lib/read-along';
 
 type Narrator = SpeechReader | TrackReader;
 
+/**
+ * «Ещё не знаем» и «нельзя озвучить» — разные вещи, и путать их нельзя:
+ * пока идёт запрос манифеста, читателю нечего сообщать, а вот показать
+ * ему в этот момент «ваш браузер не умеет озвучивать текст» — прямая
+ * ложь. На быстром соединении разница незаметна, на медленном заглушка
+ * висит секундами.
+ */
+type Source = 'pending' | 'track' | 'speech' | 'none';
+
 const IDLE: ReaderState = { status: 'idle', index: 0, total: 0, rate: 1 };
 
 /**
@@ -24,22 +33,26 @@ const IDLE: ReaderState = { status: 'idle', index: 0, total: 0, rate: 1 };
  */
 export function useReader(enabled: boolean) {
   const [state, setState] = useState<ReaderState>(IDLE);
-  const [source, setSource] = useState<'track' | 'speech' | 'none'>('none');
+  const [source, setSource] = useState<Source>('pending');
   const reader = useRef<Narrator | null>(null);
   const chunks = useRef<SpeechChunk[]>([]);
   const along = useRef<ReadAlong | null>(null);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      setSource('pending');
+      return;
+    }
 
     let cancelled = false;
 
     const start = async () => {
       const main = document.querySelector('main');
-      if (!main) return;
-
-      const found = collectChunks(main);
-      if (!found.length) return;
+      const found = main ? collectChunks(main) : [];
+      if (!found.length) {
+        setSource('none');
+        return;
+      }
 
       let tracks: Record<string, string> | null = null;
       try {

@@ -75,9 +75,13 @@ export function Article({ mode }: Props) {
     <main ref={root} id="main" tabIndex={-1} className="pb-40">
       {heroImage && (
         <section className="shell pt-6" aria-label="Обложка материала">
+          {/* Обложка — единственный кадр в первом экране: грузим её сразу
+              и вперёд остальных, иначе материал открывается пустым. */}
           <img
             src={image(heroImage)}
             alt={altFor(heroImage) ?? ''}
+            fetchPriority="high"
+            decoding="async"
             className="aspect-video w-full rounded-frame object-cover"
           />
         </section>
@@ -118,10 +122,14 @@ export function Article({ mode }: Props) {
                   <img
                     src={image(c.image)}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
                     className="aspect-[4/3] w-full rounded-[14px] object-cover"
                   />
                 )}
-                <span className="text-[length:var(--fs-ui)] tabular-nums opacity-55">
+                {/* Приглушать номер сильнее нельзя: на 55% он даёт 4,35:1
+                    и не берёт порог для мелкого текста. */}
+                <span className="text-[length:var(--fs-ui)] tabular-nums opacity-65">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <span className="text-[length:var(--fs-body)] font-bold leading-tight">
@@ -145,10 +153,14 @@ export function Article({ mode }: Props) {
           <section key={block.id} className="shell py-[clamp(2rem,5vw,5.5rem)]">
             {isChapter && block.title && (
               <header className="mb-10 flex items-baseline gap-5">
+                {/* Крупная цифра рядом с заголовком — приём набора, для чтения
+                    с экрана она лишняя. Но глазами её видно, значит контраст
+                    обязателен: водяной знак на 15% давал 1,39:1. На 45%
+                    берётся порог крупного текста с запасом. */}
                 {num && (
                   <span
                     aria-hidden="true"
-                    className="text-[length:var(--fs-display)] font-bold leading-none tabular-nums opacity-15"
+                    className="text-[length:var(--fs-display)] font-bold leading-none tabular-nums opacity-45"
                   >
                     {String(num).padStart(2, '0')}
                   </span>
@@ -168,6 +180,8 @@ export function Article({ mode }: Props) {
                 <img
                   src={image(capId)}
                   alt={altFor(capId) ?? ''}
+                  loading="lazy"
+                  decoding="async"
                   className="aspect-[16/9] w-full rounded-frame object-cover"
                 />
                 <figcaption
@@ -204,6 +218,8 @@ export function Article({ mode }: Props) {
                       key={id}
                       src={image(id)}
                       alt={altFor(id) ?? ''}
+                      loading="lazy"
+                      decoding="async"
                       data-reveal
                       className="aspect-[4/3] w-full rounded-card object-cover"
                     />
