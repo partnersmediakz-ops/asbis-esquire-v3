@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-bg: #ffffff;
+    --color-fg: #0b0b0c;
+    --color-on-media: #ffffff;
+    --color-scrim: rgb(0 0 0 / 0.55);
+
+    /* Множитель кегля. Меняется читателем: «слабовидящий» — это диапазон
+       от лёгкой близорукости до остатка зрения в проценты, одного
+       фиксированного размера тут не бывает. Трогает только текст. */
+    --fs-scale: 1;
+
+    --fs-display: calc(clamp(38px, 16px + 4.6vw, 104px) * var(--fs-scale));
+    --fs-lead: calc(clamp(20px, 15px + 1.1vw, 32px) * var(--fs-scale));
+    --fs-body: calc(clamp(18px, 15px + 0.7vw, 26px) * var(--fs-scale));
+    --fs-ui: calc(clamp(15px, 14px + 0.2vw, 18px) * var(--fs-scale));
+
+    --tap-min: 44px;
+    --media-max: 560px;
+  }
+
+  /* Базовый кегль здесь заметно крупнее обычного намеренно: материал о
+     читаемости обязан быть читаемым без включения особого режима. */
+  :root[data-mode='accessible'] {
+    --fs-body: calc(clamp(24px, 18px + 1.4vw, 46px) * var(--fs-scale));
+    --fs-lead: calc(clamp(26px, 19px + 1.6vw, 50px) * var(--fs-scale));
+    --media-max: 460px;
+  }
+
+  html {
+    background: var(--color-bg);
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-size: var(--fs-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  :where(a, button, [tabindex], select):focus-visible {
+    outline: 3px solid var(--color-fg);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .shell {
+    width: min(100% - 2 * clamp(16px, 4vw, 72px), 1400px);
+    margin-inline: auto;
+  }
+
+  .measure {
+    max-width: 62ch;
+  }
+
+  :root[data-mode='accessible'] .measure {
+    max-width: none;
+  }
+
+  /* Бегущая подсветка слова при озвучке. Непрочитанный текст намеренно
+     не гасится: приглушение снижает контраст, а материал читают в том
+     числе те, кому это критично. */
+  .read-word {
+    border-radius: 4px;
+    transition: background-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .read-word.is-current-word {
+    background: color-mix(in srgb, var(--color-fg) 26%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-fg) 26%, transparent);
+  }
+
+  .is-reading {
+    background: color-mix(in srgb, var(--color-fg) 6%, transparent);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-fg) 6%, transparent);
+    border-radius: 6px;
+  }
+
+  img.is-reading {
+    outline: 4px solid var(--color-fg);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .read-word {
+      transition: none;
+    }
+  }
+}
